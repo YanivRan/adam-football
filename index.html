@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adam — Football Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pitch: #0b3d2e;
+    --pitch-deep: #072a20;
+    --grass: #14b877;
+    --grass-bright: #2ee59d;
+    --gold: #f5c451;
+    --ink: #eef7f2;
+    --ink-dim: #9fbfb2;
+    --card: #0e4a38;
+    --card-edge: rgba(46, 229, 157, 0.18);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(46,229,157,0.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 40%, rgba(245,196,81,0.07), transparent 60%),
+      linear-gradient(180deg, var(--pitch-deep), var(--pitch) 40%, var(--pitch-deep));
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  h1, h2, h3, .stat-value { font-family: 'Archivo', sans-serif; }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Top bar ---------- */
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0;
+  }
+  .brand {
+    font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 1.1rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .brand .ball { color: var(--grass-bright); }
+  .lang-toggle {
+    display: flex; gap: 4px; background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-edge); border-radius: 999px; padding: 4px;
+  }
+  .lang-toggle button {
+    border: 0; background: transparent; color: var(--ink-dim);
+    font: 600 0.8rem 'Inter', sans-serif; padding: 6px 14px;
+    border-radius: 999px; cursor: pointer; transition: all 0.2s;
+  }
+  .lang-toggle button.active { background: var(--grass); color: #04150e; }
+
+  /* ---------- Hero ---------- */
+  header.hero {
+    display: grid; grid-template-columns: 1fr 320px; gap: 48px;
+    align-items: center; padding: 56px 0 72px;
+  }
+  .kicker {
+    color: var(--grass-bright); font-weight: 600; font-size: 0.85rem;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 900;
+    line-height: 1.05; letter-spacing: -0.01em;
+  }
+  .hero h1 .accent { color: var(--gold); }
+  .hero p.tagline { margin-top: 18px; font-size: 1.1rem; color: var(--ink-dim); max-width: 46ch; }
+  .hero .cta-row { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 13px 26px; border-radius: 12px;
+    font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: transform 0.15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--grass); color: #04150e; }
+  .btn-ghost { border: 1px solid var(--card-edge); color: var(--ink); }
+
+  /* Player card */
+  .player-card {
+    background: linear-gradient(160deg, #11543f, var(--card));
+    border: 1px solid var(--card-edge); border-radius: 24px;
+    padding: 26px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .player-card::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 85% 12%, rgba(245,196,81,0.16), transparent 40%);
+    pointer-events: none;
+  }
+  .player-photo {
+    width: 100%; aspect-ratio: 4/5; border-radius: 16px;
+    background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.22);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-dim); font-size: 0.85rem; text-align: center; padding: 12px;
+    overflow: hidden;
+  }
+  .player-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+  .player-card .name-row {
+    display: flex; justify-content: space-between; align-items: baseline; margin-top: 18px;
+  }
+  .player-card .p-name { font-family: 'Archivo'; font-weight: 900; font-size: 1.4rem; }
+  .player-card .p-num { font-family: 'Archivo'; font-weight: 900; font-size: 1.6rem; color: var(--gold); }
+  .player-card .p-meta { color: var(--ink-dim); font-size: 0.85rem; margin-top: 2px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; }
+  .section-title { font-size: 1.9rem; font-weight: 900; margin-bottom: 8px; }
+  .section-sub { color: var(--ink-dim); margin-bottom: 36px; max-width: 60ch; }
+
+  /* Eligibility note */
+  .eligibility-note {
+    margin-top: 18px; background: rgba(245,196,81,0.07);
+    border: 1px solid rgba(245,196,81,0.35); border-radius: 16px;
+    padding: 20px 22px;
+  }
+  .eligibility-note .e-title { font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+  .eligibility-note p { color: var(--ink-dim); font-size: 0.95rem; max-width: 75ch; }
+
+  /* Stats grid */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.045); border: 1px solid var(--card-edge);
+    border-radius: 16px; padding: 20px;
+  }
+  .stat-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); }
+  .stat-value { font-size: 1.35rem; font-weight: 700; margin-top: 6px; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 34px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 6px; bottom: 6px;
+    width: 2px; background: linear-gradient(var(--grass), var(--gold));
+    border-radius: 2px;
+  }
+  .t-item { position: relative; padding-bottom: 40px; }
+  .t-item:last-child { padding-bottom: 0; }
+  .t-item::before {
+    content: ''; position: absolute; left: -31px; top: 8px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--grass-bright); box-shadow: 0 0 0 5px rgba(46,229,157,0.15);
+  }
+  .t-item.future::before { background: var(--gold); box-shadow: 0 0 0 5px rgba(245,196,81,0.15); }
+  .t-date {
+    font-weight: 700; font-size: 0.8rem; color: var(--grass-bright);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .t-item.future .t-date { color: var(--gold); }
+  .t-item h3 { font-size: 1.25rem; margin: 6px 0 8px; }
+  .t-item p { color: var(--ink-dim); max-width: 62ch; }
+
+  /* Videos */
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .video-card {
+    background: rgba(255,255,255,0.045); border: 1px solid var(--card-edge);
+    border-radius: 16px; overflow: hidden;
+  }
+  .video-frame { aspect-ratio: 16/9; background: #04150e; }
+  .video-frame iframe, .video-frame video { width: 100%; height: 100%; border: 0; display: block; }
+  .video-placeholder {
+    width: 100%; height: 100%; display: flex; flex-direction: column; gap: 8px;
+    align-items: center; justify-content: center; color: var(--ink-dim);
+    font-size: 0.85rem; border-bottom: 1px dashed rgba(255,255,255,0.15);
+  }
+  .video-placeholder .icon { font-size: 1.8rem; }
+  .video-card .v-title { padding: 14px 16px; font-weight: 600; font-size: 0.95rem; }
+  .video-card .v-desc { padding: 0 16px 16px; color: var(--ink-dim); font-size: 0.85rem; }
+
+  /* Footer / contact */
+  footer {
+    border-top: 1px solid var(--card-edge); margin-top: 40px;
+    padding: 44px 0 60px; text-align: center;
+  }
+  footer h2 { font-size: 1.5rem; font-weight: 900; }
+  footer p { color: var(--ink-dim); margin: 10px auto 24px; max-width: 50ch; }
+  .footer-note { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 36px; }
+
+  @media (max-width: 760px) {
+    header.hero { grid-template-columns: 1fr; padding-top: 24px; }
+    .player-card { max-width: 340px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+<noscript>
+  <div style="max-width:700px;margin:40px auto;padding:20px;border:1px solid #f5c451;border-radius:12px;color:#eef7f2;font-family:sans-serif;">
+    This page needs JavaScript to display Adam's portfolio — please enable it in your browser.
+    / Esta página necesita JavaScript para mostrar el portafolio de Adam.
+  </div>
+</noscript>
+<div class="wrap">
+
+  <nav>
+    <div class="brand">Adam <span class="ball">⚽</span> <span data-i18n="brand"></span></div>
+    <div class="lang-toggle">
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+      <button id="btn-es" onclick="setLang('es')">ES</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <div class="kicker" data-i18n="kicker"></div>
+      <h1 data-i18n-html="heroTitle"></h1>
+      <p class="tagline" data-i18n="tagline"></p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#videos" data-i18n="ctaVideos"></a>
+        <a class="btn btn-ghost" href="#journey" data-i18n="ctaJourney"></a>
+      </div>
+    </div>
+    <div class="player-card">
+      <div class="player-photo" id="playerPhoto">
+        <span data-i18n="photoPlaceholder"></span>
+        <!-- Replace the line above with:  <img src="media/adam.jpg" alt="Adam">  -->
+      </div>
+      <div class="name-row">
+        <div>
+          <div class="p-name">Adam</div>
+          <div class="p-meta" data-i18n="cardMeta"></div>
+        </div>
+        <div class="p-num" id="shirtNumber"></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="videos">
+    <h2 class="section-title" data-i18n="videosTitle"></h2>
+    <p class="section-sub" data-i18n="videosSub"></p>
+    <div class="video-grid" id="videoGrid"></div>
+  </section>
+
+  <section id="details">
+    <h2 class="section-title" data-i18n="detailsTitle"></h2>
+    <p class="section-sub" data-i18n="detailsSub"></p>
+    <div class="stats" id="statsGrid"></div>
+    <div class="eligibility-note">
+      <div class="e-title" data-i18n="eligTitle"></div>
+      <p data-i18n="eligText"></p>
+    </div>
+  </section>
+
+  <section id="journey">
+    <h2 class="section-title" data-i18n="journeyTitle"></h2>
+    <p class="section-sub" data-i18n="journeySub"></p>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <footer id="contact">
+    <h2 data-i18n="contactTitle"></h2>
+    <p data-i18n="contactSub"></p>
+    <a class="btn btn-primary" id="contactBtn" href="mailto:your@email.com" data-i18n="contactCta"></a>
+    <div class="footer-note" data-i18n="footerNote"></div>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   EDIT EVERYTHING HERE — this one object drives the whole site.
+   ============================================================ */
+const PLAYER = {
+  shirtNumber: '18',                          // Adam's shirt number
+  contactEmail: 'your@email.com',             // where scouts/coaches can reach you
+
+  // Player details shown in the stats grid: [label EN, label ES, value].
+  // A value can be one plain string, or { en: '...', es: '...' } to translate it.
+  stats: [
+    ['Age', 'Edad', '11'],
+    ['Position', 'Posición', { en: 'Center midfielder', es: 'Mediocentro' }],
+    ['Preferred foot', 'Pie dominante', { en: 'Left', es: 'Izquierdo' }],
+    ['Current club', 'Club actual', { en: 'Available — open to trials', es: 'Disponible — abierto a pruebas' }],
+    ['Nationality', 'Nacionalidad', { en: 'Canada 🇨🇦', es: 'Canadá 🇨🇦' }],
+    ['Based in', 'Ciudad', { en: 'Madrid, Spain 🇪🇸', es: 'Madrid, España 🇪🇸' }],
+    ['Residency', 'Residencia', { en: 'Legal residency in Spain ✓', es: 'Residencia legal en España ✓' }],
+  ],
+
+  /* Videos — two kinds of entries (plus placeholders):
+
+     1. EMBEDDED from another site — paste any video link as `url`:
+          { url: 'https://www.youtube.com/watch?v=XXXX', title: {...}, desc: {...} }
+        YouTube (incl. Shorts / youtu.be), Vimeo and Dailymotion links are
+        converted automatically. For other platforms (Veo, Hudl, ...) paste the
+        platform's "embed" link as the url.
+
+     2. UPLOADED file — drop the video into the "media" folder, then:
+          { file: 'media/goal-vs-rivals.mp4', title: {...}, desc: {...} }
+
+     3. Placeholder (shown until you replace it):
+          { placeholder: true, title: {...}, desc: {...} }                    */
+  videos: [
+    { placeholder: true,   // ← replace with { url: '...' } or { file: 'media/....mp4' }
+      title: { en: 'Highlights', es: 'Mejores momentos' },
+      desc:  { en: 'Best goals, assists and skills.', es: 'Mejores goles, asistencias y jugadas.' } },
+    { placeholder: true,   // ← replace with { url: '...' } or { file: 'media/....mp4' }
+      title: { en: 'Match footage', es: 'Partidos' },
+      desc:  { en: 'In-game clips.', es: 'Clips de partidos.' } },
+  ],
+
+  // The journey timeline. Add new items as the story continues.
+  timeline: [
+    { date: { en: '2022 — Canada', es: '2022 — Canadá' },
+      title: { en: 'First touch of the ball', es: 'Primer contacto con el balón' },
+      text: { en: 'Adam starts playing organized football at age 8 in Canada, and falls in love with the game from day one.',
+              es: 'Adam empieza a jugar al fútbol organizado a los 8 años en Canadá y se enamora del juego desde el primer día.' } },
+    { date: { en: '2023–2025 — Canada', es: '2023–2025 — Canadá' },
+      title: { en: 'Growing as a player', es: 'Creciendo como jugador' },
+      text: { en: 'Seasons of club football, tournaments and constant improvement. Add highlights here: teams, coaches, memorable matches.',
+              es: 'Temporadas de fútbol de club, torneos y mejora constante. Añade aquí lo más destacado: equipos, entrenadores, partidos memorables.' } },
+    { date: { en: 'January 2026 — Madrid', es: 'Enero 2026 — Madrid' },
+      title: { en: 'A new chapter in Spain', es: 'Un nuevo capítulo en España' },
+      text: { en: 'The family moves to Madrid — the heart of world football. Adam continues his development in Spanish football culture.',
+              es: 'La familia se muda a Madrid, el corazón del fútbol mundial. Adam continúa su desarrollo en la cultura futbolística española.' } },
+    { future: true,
+      date: { en: 'The future', es: 'El futuro' },
+      title: { en: 'The journey continues…', es: 'El camino continúa…' },
+      text: { en: 'Trials, new clubs, new goals. This page will keep growing with Adam.',
+              es: 'Pruebas, nuevos clubes, nuevas metas. Esta página seguirá creciendo con Adam.' } },
+  ],
+};
+
+/* ---------- Translations for the fixed page text ---------- */
+const I18N = {
+  en: {
+    brand: 'Football Portfolio',
+    kicker: 'Player introduction card',
+    heroTitle: 'Adam’s football <span class="accent">journey</span>',
+    tagline: 'An 11-year-old left-footed center midfielder with Canadian roots, now developing in Madrid. Passionate, coachable, and improving every single week.',
+    ctaVideos: '▶ Watch videos',
+    ctaJourney: 'His journey',
+    photoPlaceholder: '📷 Add Adam’s photo here (media/adam.jpg)',
+    cardMeta: 'Born 2014 · Canada → Madrid',
+    detailsTitle: 'Player details',
+    detailsSub: 'The essentials, at a glance.',
+    eligTitle: '✅ Residency & league eligibility',
+    eligText: 'Adam lives in Madrid with full legal residency — the family relocated on an entrepreneur residence visa, a move not related to football. He therefore meets the FIFA requirements for registering foreign minors, and can be registered with the Madrid federation (RFFM) and any club or academy without visa complications.',
+    journeyTitle: 'The journey',
+    journeySub: 'From a first kick in Canada to a new life in Madrid.',
+    videosTitle: 'Videos',
+    videosSub: 'Highlights, matches and training sessions.',
+    contactTitle: 'Get in touch',
+    contactSub: 'Coaches, academies and clubs — we’d love to hear from you.',
+    contactCta: 'Contact us',
+    footerNote: 'Made with ❤️ by Adam’s family · Canada → Madrid',
+  },
+  es: {
+    brand: 'Portafolio de Fútbol',
+    kicker: 'Ficha de presentación del jugador',
+    heroTitle: 'El <span class="accent">camino</span> futbolístico de Adam',
+    tagline: 'Mediocentro zurdo de 11 años con raíces canadienses, ahora formándose en Madrid. Apasionado, receptivo y mejorando cada semana.',
+    ctaVideos: '▶ Ver vídeos',
+    ctaJourney: 'Su camino',
+    photoPlaceholder: '📷 Añade la foto de Adam aquí (media/adam.jpg)',
+    cardMeta: 'Nacido en 2014 · Canadá → Madrid',
+    detailsTitle: 'Datos del jugador',
+    detailsSub: 'Lo esencial, de un vistazo.',
+    eligTitle: '✅ Residencia y elegibilidad federativa',
+    eligText: 'Adam vive en Madrid con residencia legal completa: la familia se trasladó con un visado de residencia por emprendimiento, un traslado no relacionado con el fútbol. Por tanto cumple los requisitos de la FIFA para la inscripción de menores extranjeros, y puede federarse en la RFFM y fichar por cualquier club o academia sin complicaciones de visado.',
+    journeyTitle: 'El camino',
+    journeySub: 'Desde la primera patada en Canadá hasta una nueva vida en Madrid.',
+    videosTitle: 'Vídeos',
+    videosSub: 'Mejores momentos, partidos y entrenamientos.',
+    contactTitle: 'Contacto',
+    contactSub: 'Entrenadores, academias y clubes: nos encantaría saber de vosotros.',
+    contactCta: 'Contáctanos',
+    footerNote: 'Hecho con ❤️ por la familia de Adam · Canadá → Madrid',
+  },
+};
+
+// Turns a regular share link into an embeddable player URL.
+// Unknown platforms are passed through unchanged, so a platform's own
+// "embed" link (Veo, Hudl, ...) works as-is.
+function toEmbed(url) {
+  let m;
+  if ((m = url.match(/(?:youtube\.com\/(?:watch\?.*?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([\w-]{6,})/)))
+    return 'https://www.youtube.com/embed/' + m[1];
+  if ((m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/)))
+    return 'https://player.vimeo.com/video/' + m[1];
+  if ((m = url.match(/dailymotion\.com\/video\/(\w+)/)))
+    return 'https://www.dailymotion.com/embed/video/' + m[1];
+  return url;
+}
+
+// localStorage can be unavailable (e.g. some browsers block it for file:// pages);
+// the language preference is a nice-to-have, so never let it break rendering.
+function savedLang() {
+  try { return localStorage.getItem('adam-lang'); } catch (e) { return null; }
+}
+let lang = savedLang() || 'en';
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem('adam-lang', l); } catch (e) {}
+  document.documentElement.lang = l;
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.getElementById('btn-es').classList.toggle('active', l === 'es');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = I18N[l][el.dataset.i18n] ?? '';
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = I18N[l][el.dataset.i18nHtml] ?? '';
+  });
+  renderDynamic();
+}
+
+function renderDynamic() {
+  // Stats
+  document.getElementById('statsGrid').innerHTML = PLAYER.stats.map(([en, es, value]) => `
+    <div class="stat">
+      <div class="stat-label">${lang === 'en' ? en : es}</div>
+      <div class="stat-value">${typeof value === 'object' ? value[lang] : value}</div>
+    </div>`).join('');
+
+  // Timeline
+  document.getElementById('timeline').innerHTML = PLAYER.timeline.map(item => `
+    <div class="t-item${item.future ? ' future' : ''}">
+      <div class="t-date">${item.date[lang]}</div>
+      <h3>${item.title[lang]}</h3>
+      <p>${item.text[lang]}</p>
+    </div>`).join('');
+
+  // Videos
+  const phText = lang === 'en' ? 'Video coming soon' : 'Vídeo próximamente';
+  document.getElementById('videoGrid').innerHTML = PLAYER.videos.map(v => {
+    let frame;
+    const embedUrl = v.url || v.embed || (v.youtube && 'https://www.youtube.com/watch?v=' + v.youtube);
+    if (embedUrl) {
+      frame = `<iframe src="${toEmbed(embedUrl)}" allowfullscreen
+                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+    } else if (v.file) {
+      frame = `<video controls preload="metadata" src="${v.file}"></video>`;
+    } else {
+      frame = `<div class="video-placeholder"><span class="icon">🎬</span>${phText}</div>`;
+    }
+    return `<div class="video-card">
+      <div class="video-frame">${frame}</div>
+      <div class="v-title">${v.title[lang]}</div>
+      <div class="v-desc">${v.desc[lang]}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('shirtNumber').textContent = '#' + PLAYER.shirtNumber;
+document.getElementById('contactBtn').href = 'mailto:' + PLAYER.contactEmail;
+setLang(lang);
+</script>
+</body>
+</html>

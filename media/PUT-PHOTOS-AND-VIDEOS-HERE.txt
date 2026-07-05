@@ -1,0 +1,5 @@
+Drop Adam's photos and video files in this folder.
+
+- Profile photo: name it adam.jpg (see README.md for the one-line change in index.html)
+- Video clips: .mp4 files, then reference them from the "videos" list in index.html,
+  e.g. { file: 'media/goal-vs-rivals.mp4', ... }

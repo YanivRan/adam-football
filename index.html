@@ -101,6 +101,7 @@
     overflow: hidden;
   }
   .player-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+  .player-photo img + span { display: none; } /* hide placeholder text while the photo is present */
   .player-card .name-row {
     display: flex; justify-content: space-between; align-items: baseline; margin-top: 18px;
   }
@@ -218,8 +219,9 @@
     </div>
     <div class="player-card">
       <div class="player-photo" id="playerPhoto">
+        <!-- Shows media/adam.jpg once it exists; falls back to the placeholder if the file is missing. -->
+        <img src="media/adam.jpg" alt="Adam" onerror="this.remove()">
         <span data-i18n="photoPlaceholder"></span>
-        <!-- Replace the line above with:  <img src="media/adam.jpg" alt="Adam">  -->
       </div>
       <div class="name-row">
         <div>

@@ -175,6 +175,41 @@
   .video-card .v-title { padding: 14px 16px; font-weight: 600; font-size: 0.95rem; }
   .video-card .v-desc { padding: 0 16px 16px; color: var(--ink-dim); font-size: 0.85rem; }
 
+  /* Clickable video thumbnail */
+  .video-play {
+    position: relative; width: 100%; height: 100%; padding: 0; border: 0;
+    background: #04150e; cursor: pointer; display: block; overflow: hidden;
+  }
+  .video-play video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .video-play .play-badge {
+    position: absolute; inset: 0; margin: auto; width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(20,184,119,0.92); color: #04150e; border-radius: 50%;
+    font-size: 1.5rem; padding-left: 4px; transition: transform 0.15s, background 0.15s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .video-play:hover .play-badge, .video-play:focus-visible .play-badge {
+    transform: scale(1.08); background: var(--grass-bright);
+  }
+
+  /* Fullscreen lightbox player */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 1000; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(2,12,8,0.92); backdrop-filter: blur(6px); padding: 24px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox video {
+    max-width: 100%; max-height: 100%; width: auto; height: auto;
+    border-radius: 12px; box-shadow: var(--shadow); background: #000;
+  }
+  .lightbox-close {
+    position: absolute; top: 18px; right: 22px; width: 44px; height: 44px;
+    border: 0; border-radius: 50%; background: rgba(255,255,255,0.12); color: #fff;
+    font-size: 1.3rem; cursor: pointer; line-height: 1;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.24); }
+
   /* Footer / contact */
   footer {
     border-top: 1px solid var(--card-edge); margin-top: 40px;
@@ -239,6 +274,11 @@
     <div class="video-grid" id="videoGrid"></div>
   </section>
 
+  <div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lightbox-close" aria-label="Close" onclick="closeLightbox()">✕</button>
+    <video id="lightboxVideo" controls playsinline></video>
+  </div>
+
   <section id="details">
     <h2 class="section-title" data-i18n="detailsTitle"></h2>
     <p class="section-sub" data-i18n="detailsSub"></p>
@@ -299,7 +339,7 @@ const PLAYER = {
      3. Placeholder (shown until you replace it):
           { placeholder: true, title: {...}, desc: {...} }                    */
   videos: [
-    { placeholder: true,   // ← replace with { url: '...' } or { file: 'media/....mp4' }
+    { file: 'media/Adam Liam 2024.mp4',
       title: { en: 'Highlights', es: 'Mejores momentos' },
       desc:  { en: 'Best goals, assists and skills.', es: 'Mejores goles, asistencias y jugadas.' } },
     { placeholder: true,   // ← replace with { url: '...' } or { file: 'media/....mp4' }
@@ -438,7 +478,12 @@ function renderDynamic() {
       frame = `<iframe src="${toEmbed(embedUrl)}" allowfullscreen
                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
     } else if (v.file) {
-      frame = `<video controls preload="metadata" src="${v.file}"></video>`;
+      // Thumbnail (first frame) + play badge; click opens the fullscreen lightbox player.
+      const label = (lang === 'en' ? 'Play' : 'Reproducir') + ': ' + v.title[lang];
+      frame = `<button class="video-play" aria-label="${label}" onclick="openLightbox(this.dataset.src)" data-src="${v.file}">
+                 <video src="${v.file}#t=0.1" preload="metadata" muted playsinline></video>
+                 <span class="play-badge" aria-hidden="true">▶</span>
+               </button>`;
     } else {
       frame = `<div class="video-placeholder"><span class="icon">🎬</span>${phText}</div>`;
     }
@@ -449,6 +494,36 @@ function renderDynamic() {
     </div>`;
   }).join('');
 }
+
+// ---- Fullscreen video lightbox ----
+function openLightbox(src) {
+  const box = document.getElementById('lightbox');
+  const vid = document.getElementById('lightboxVideo');
+  vid.src = src;
+  box.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Try true browser fullscreen; fall back to the full-viewport overlay + iOS native fullscreen.
+  const req = box.requestFullscreen || box.webkitRequestFullscreen;
+  if (req) { try { req.call(box); } catch (e) {} }
+  else if (vid.webkitEnterFullscreen) { try { vid.webkitEnterFullscreen(); } catch (e) {} }
+  vid.play().catch(() => {});
+}
+function closeLightbox() {
+  const box = document.getElementById('lightbox');
+  const vid = document.getElementById('lightboxVideo');
+  vid.pause();
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  }
+  box.classList.remove('open');
+  vid.removeAttribute('src'); vid.load();
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+// If the user exits native fullscreen (e.g. Esc/swipe), also close the overlay.
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && document.getElementById('lightbox').classList.contains('open')) closeLightbox();
+});
 
 document.getElementById('shirtNumber').textContent = '#' + PLAYER.shirtNumber;
 document.getElementById('contactBtn').href = 'mailto:' + PLAYER.contactEmail;
